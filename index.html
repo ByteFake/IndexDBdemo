@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>主页</title>
+    <meta charset="utf-8"/>
+    <link rel="icon" href="./包菜.png" type="image/x-icon"/>
+    <script src="./jquery-3.6.0.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        #add{
+            width: 70px;
+            height: 30px;
+            border: none;
+            position:absolute;
+            right: 5px;
+            top: 5px;
+            text-align: center;
+            line-height: 30px;
+            background-color: cadetblue;
+            border-radius: 5px;
+        }
+        #enteradd{
+            z-index: 99;
+            display: none;
+            position: absolute;
+            left: 50%;
+            margin-left: -200px;
+            top: 50%;
+            margin-top: -100px;
+            width: 400px;
+            height: 200px;
+            border:1px solid burlywood;
+            border-radius: 10px;
+            background-color:rgb(187, 211, 203);
+        }
+        #enteradd .in{
+            width: 250px;
+            height: 40px;
+            border-radius: 5px;
+            border: none;
+            background-color: bisque;
+            margin: 15px auto;
+        }
+        #addbutton{
+            width: 100px;
+            height: 40px;
+            margin: 0px auto;
+            background-color: cadetblue;
+            border: none;
+        }
+        #closed{
+            position: absolute;
+            display: block;
+            width: 60px;
+            height: 25px;
+            right: 0px;
+            top: -32px;
+            border-radius: 5px;
+            background-color: cadetblue;
+            border: none;
+        }
+        #big{
+            width: 100%;
+            height: calc(100vh - 200px);
+        }
+        #sscontent{
+            width: 500px;
+            height: 50px;
+            margin: 200px auto;
+            margin-bottom: 0px;
+        }
+        #txt{
+            border: 2px solid antiquewhite;
+            border-radius: 10px;
+            width: 300px;
+            height: 50px;
+            padding: 0px 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        #btnsou{
+            font-size: 18px;
+            border: 1px solid antiquewhite;
+            border-radius: 10px;
+            width: 100px;
+            height: 50px;
+        }
+        #txt:focus{
+            outline:none;
+            border-radius: 10px;
+        }
+        #content{
+            display: flex;
+            flex-direction: row;
+            flex-flow: wrap;
+            width: 1000px;
+            height: 360px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        #tit{
+            display: block;
+            width: 100px;
+            height: 100px;
+            background-color: antiquewhite;
+            text-decoration: none;
+            border-radius: 50px;
+            text-align: center;
+            line-height: 100px;
+            margin: 10px;
+            color: rgb(59, 92, 243);
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="enteradd" align="center">
+        网站标题：<input class="in" id="addname" type="text" focus="true"/><br/>
+        网站链接：<input class="in" id="addurl" type="text"/><br/>
+        <input id="addbutton" onclick="add()" value="添加" type="button"/>
+        <input id="closed" onclick="closediv()" value="关闭" type="button"/>
+    </div>
+    <script>
+        //div拖动
+        //获取元素
+        var dv = document.getElementById('enteradd');
+        var x = 0;
+        var y = 0;
+        var l = 0;
+        var t = 0;
+        var isDown = false;
+        //鼠标按下事件
+        dv.onmousedown = function(e) {
+            //获取x坐标和y坐标
+            x = e.clientX;
+            y = e.clientY;
+
+            //获取左部和顶部的偏移量
+            l = dv.offsetLeft+200;
+            t = dv.offsetTop+100;
+            //开关打开
+            isDown = true;
+            //设置样式  
+            dv.style.cursor = 'move';
+        }
+        //鼠标移动
+        window.onmousemove = function(e) {
+            if (isDown == false) {
+                return;
+            }
+            //获取x和y
+            var nx = e.clientX;
+            var ny = e.clientY;
+            //计算移动后的左偏移量和顶部的偏移量
+            var nl = nx - (x - l);
+            var nt = ny - (y - t);
+
+            dv.style.left = nl + 'px';
+            dv.style.top = nt + 'px';
+        }
+        //鼠标抬起事件
+        dv.onmouseup = function() {
+            //开关关闭
+            isDown = false;
+            dv.style.cursor = 'default';
+        }
+    </script>
+    <script>
+        function showadd(){
+            document.querySelector("body").style.backgroundColor="#E0E0E0";
+            document.getElementById("big").style.opacity="0.3";
+            document.getElementById("enteradd").style.display="block";
+        }
+        function closediv(){
+            document.querySelector("body").style.backgroundColor="";
+            document.getElementById("big").style.opacity="1";
+            document.getElementById("enteradd").style.display="none";
+        }
+        function add(){
+            var addName = $("#addname").val();
+            var addUrl = $("#addurl").val();
+            var request = indexedDB.open("localMenuDb",1)
+            var db;
+            console.log("添加")
+            request.onsuccess = function(event){
+                db = event.target.result;
+                req = db.transaction(['re'],'readwrite').objectStore("re").add({name:addName,datas:addUrl})
+                if(req){
+                    console.log("Open success");
+                    $("#content").append("<a id='tit' href='" + addUrl +"'>"+ addName +"</a>");
+                    closediv();
+                }
+            }
+        }
+    </script>
+    <div id="big"> 
+        
+        <p id="add" onclick="showadd()">添加</p>
+        <div id="sscontent" align="center">
+            <input id="txt" placeholder="输入您想要检索的内容" type="text"><input id="btnsou" type="button" value="搜索" onclick="sou()"/>
+            <script>
+                function sou(){
+                    var wd = $("#txt").val()
+                    window.location = "https://www.baidu.com/s?wd="+wd
+                }
+            </script>
+        </div>
+        <div id="content">
+
+        </div>
+        <script>
+            var request = indexedDB.open("localMenuDb",1)
+            request.onerror = function(event){
+                console.log("数据库打开错误！")
+            }
+            var db;
+            request.onupgradeneeded = function (event) {
+                db = event.target.result;
+                var objStore;
+                if (!db.objectStoreNames.contains('re')) {
+                    console.log("Create Success")
+                    objStore = db.createObjectStore('re', { autoIncrement : true});
+                    objStore.createIndex('name','name',{unique:true});
+                    objStore.createIndex('datas','datas',{unique:true});
+                }
+            }
+            request.onsuccess = function(event){
+                db = event.target.result;
+                function redAll(){
+                    var objStore = db.transaction(['re'],'readwrite').objectStore("re");
+                    objStore.openCursor().onsuccess = function (event) {
+                    var cursor = event.target.result;
+
+                    if (cursor) {
+                        $("#content").append("<a id='tit' href='" + cursor.value.datas+"'>"+cursor.value.name+"</a>");
+                        cursor.continue();
+                    }
+                    }
+                }
+                
+                redAll();
+
+
+
+            }
+
+        </script>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $("#txt").focus();
+            $(document).keyup(function(event){
+                if(event.keyCode ==13){
+                    $("#btnsou").trigger("click");
+                }
+                });
+        });
+    </script>
+</body>
+</html>
